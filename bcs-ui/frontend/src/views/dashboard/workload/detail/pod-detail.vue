@@ -59,9 +59,10 @@
         </div>
         <div class="workload-detail-body">
             <div class="workload-metric">
-                <Metric :title="$t('CPU使用率')" metric="cpu_usage" :params="params" category="pods" colors="#30d878"></Metric>
-                <Metric :title="$t('内存使用率')" metric="memory_usage" :params="params" unit="byte" category="pods" colors="#3a84ff"></Metric>
+                <Metric :title="$t('CPU使用率')" type="cpu" metric="cpu_usage" :params="params" category="pods" colors="#30d878"></Metric>
+                <Metric :title="$t('内存使用率')" type="memory" metric="memory_usage" :params="params" unit="byte" category="pods" colors="#3a84ff"></Metric>
                 <Metric :title="$t('网络')"
+                    type="network"
                     :metric="['network_receive', 'network_transmit']"
                     :params="params"
                     category="pods"

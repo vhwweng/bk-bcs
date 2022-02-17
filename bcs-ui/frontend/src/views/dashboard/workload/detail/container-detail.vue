@@ -37,9 +37,10 @@
         </div>
         <div class="workload-detail-body">
             <div class="workload-metric">
-                <Metric :title="$t('CPU使用率')" metric="cpu_usage" :params="params" category="containers" colors="#30d878"></Metric>
-                <Metric :title="$t('内存使用率')" metric="memory_usage" :params="params" unit="byte" category="containers" colors="#3a84ff"></Metric>
+                <Metric :title="$t('CPU使用率')" type="cpu" metric="cpu_usage" :params="params" category="containers" colors="#30d878"></Metric>
+                <Metric :title="$t('内存使用率')" type="memory" metric="memory_usage" :params="params" unit="byte" category="containers" colors="#3a84ff"></Metric>
                 <Metric :title="$t('磁盘IO总量')"
+                    type="disk"
                     :metric="['disk_read', 'disk_write']"
                     :params="params"
                     category="containers"

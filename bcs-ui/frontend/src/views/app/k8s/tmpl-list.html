@@ -148,12 +148,12 @@
                                                                 <!-- <label class="bk-form-checkbox">
                                                                     <input type="checkbox" name="check-all-instance"
                                                                         v-model="tpl.isAllChecked"
-                                                                        v-if="tpl.instanceList && tpl.instanceList.length && tpl.instanceList.filter(item => item.state.islock === true).length === 0 && tpl.instanceList.filter(instance => instance.permissions && instance.permissions.use).length"
+                                                                        v-if="tpl.instanceList && tpl.instanceList.length && tpl.instanceList.filter(item => item.state.islock === true).length === 0"
                                                                         @click.stop="checkAllInstance($event, tpl, index, tmplMuster.templateList)" />
                                                                     <input v-else type="checkbox" name="check-all-instance" disabled="disabled" />
                                                                 </label> -->
                                                                 <bk-checkbox name="check-all-instance" v-model="tpl.isAllChecked"
-                                                                    v-if="tpl.instanceList && tpl.instanceList.length && tpl.instanceList.filter(item => item.state.islock === true).length === 0 && tpl.instanceList.filter(instance => instance.permissions && instance.permissions.use).length"
+                                                                    v-if="tpl.instanceList && tpl.instanceList.length && tpl.instanceList.filter(item => item.state.islock === true).length === 0"
                                                                     @change="checkAllInstance(tpl, index, tmplMuster.templateList, ...arguments)" />
                                                                 <bk-checkbox v-else name="check-all-instance" disabled="disabled" />
                                                             </th>
@@ -180,12 +180,12 @@
                                                                 <td style="width: 40px; text-align: center; top: 0; position: relative;">
                                                                     <!-- <label class="bk-form-checkbox">
                                                                         <input type="checkbox" name="check-instance"
-                                                                            v-if="instance.state.islock === false && instance.permissions.use"
+                                                                            v-if="instance.state.islock === false"
                                                                             v-model="instance.isChecked"
                                                                             @click.stop="checkInstance(instance, instanceIndex, tpl, index, tmplMuster.templateList)" />
                                                                         <input v-else type="checkbox" name="check-instance" disabled="disabled" />
                                                                     </label> -->
-                                                                    <bk-checkbox name="check-instance" v-if="instance.state.islock === false && instance.permissions.use"
+                                                                    <bk-checkbox name="check-instance" v-if="instance.state.islock === false"
                                                                         v-model="instance.isChecked"
                                                                         @change="checkInstance(instance, instanceIndex, tpl, index, tmplMuster.templateList, ...arguments)" />
                                                                     <bk-checkbox v-else name="check-instance" disabled="disabled" />
@@ -588,13 +588,13 @@
                                                     <td style="width: 40px; text-align: center; top: 0; position: relative;">
                                                         <!-- <label class="bk-form-checkbox">
                                                             <input type="checkbox" name="check-app-instance"
-                                                                v-if="instance.state.islock === false && instance.permissions.use"
+                                                                v-if="instance.state.islock === false"
                                                                 v-model="instance.isChecked"
                                                                 @click="checkNamespace(instance, instanceIndex, namespace, namespaceIndex, namespaceList)" />
                                                             <input v-else type="checkbox" name="check-app-instance" disabled="disabled" />
                                                         </label> -->
                                                         <bk-checkbox name="check-app-instance"
-                                                            v-if="instance.state.islock === false && instance.permissions.use"
+                                                            v-if="instance.state.islock === false"
                                                             v-model="instance.isChecked"
                                                             @change="checkNamespace(instance, instanceIndex, namespace, namespaceIndex, namespaceList, ...arguments)" />
                                                         <bk-checkbox v-else name="check-app-instance" disabled="disabled" />

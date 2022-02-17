@@ -91,7 +91,10 @@
                                     </bk-dropdown-menu>
                                 </div>
                             </div>
-                            <chart :options="cpuChartOptsK8S" ref="cpuLine1" auto-resize></chart>
+                            <div v-bkloading="{ isLoading: cpuShowLoading }">
+                                <canvas id="cpuChart"></canvas>
+                            </div>
+                            <!-- <chart :options="cpuChartOptsK8S" ref="cpuLine1" auto-resize></chart> -->
                         </div>
                         <div class="part top-right">
                             <div class="info">
@@ -118,7 +121,10 @@
                                     </bk-dropdown-menu>
                                 </div>
                             </div>
-                            <chart :options="memChartOptsK8S" ref="memoryLine1" auto-resize></chart>
+                            <div v-bkloading="{ isLoading: memShowLoading }">
+                                <canvas id="memChart"></canvas>
+                            </div>
+                            <!-- <chart :options="memChartOptsK8S" ref="memoryLine1" auto-resize></chart> -->
                         </div>
                     </div>
                     <div class="biz-cluster-node-overview-chart">
@@ -147,7 +153,7 @@
                                     </bk-dropdown-menu>
                                 </div>
                             </div>
-                            <chart :options="networkChartOptsK8S" ref="networkLine1" auto-resize></chart>
+                            <!-- <chart :options="networkChartOptsK8S" ref="networkLine1" auto-resize></chart> -->
                         </div>
                         <div class="part">
                             <div class="info">
@@ -174,7 +180,10 @@
                                     </bk-dropdown-menu>
                                 </div>
                             </div>
-                            <chart :options="diskioChartOptsK8S" ref="storageLine1" auto-resize></chart>
+                            <div v-bkloading="{ isLoading: diskioShowLoading }">
+                                <canvas id="diskioChart"></canvas>
+                            </div>
+                            <!-- <chart :options="diskioChartOptsK8S" ref="storageLine1" auto-resize></chart> -->
                         </div>
                     </div>
                 </div>
@@ -272,7 +281,8 @@
 
 <script>
     import moment from 'moment'
-    import ECharts from 'vue-echarts/components/ECharts.vue'
+    import BKChart from '@tencent/bkchart.js'
+    // import ECharts from 'vue-echarts/components/ECharts.vue'
     import 'echarts/lib/chart/line'
     import 'echarts/lib/component/tooltip'
     import 'echarts/lib/component/legend'
@@ -284,7 +294,7 @@
 
     export default {
         components: {
-            chart: ECharts
+            // chart: ECharts
         },
         data () {
             return {
@@ -323,7 +333,15 @@
                 labelList: [],
                 labelListLoading: true,
                 exceptionCode: null,
-                terminalWins: {}
+                terminalWins: {},
+                cpuShowLoading: true,
+                memShowLoading: true,
+                diskioShowLoading: true,
+                netShowLoading: true,
+                cpuChart: null,
+                memChart: null,
+                netChart: null,
+                diskioChart: null
             }
         },
         computed: {
@@ -598,68 +616,102 @@
                 }
             },
 
+            initChart (chartName, x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, chartOpts) {
+                const chartOptsK8S = Object.assign({}, chartOpts)
+                chartOptsK8S.options.plugins.tooltip = tooltipsOps
+                const context = document.getElementById(chartName)
+                this[chartName] = new BKChart(context, {
+                    type: 'line',
+                    data: {
+                        labels: x,
+                        datasets: [
+                            {
+                                label: false,
+                                fill: true,
+                                borderColor,
+                                backgroundColor,
+                                lineTension: 0.3,
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                data: y,
+                                tipsLabel
+                            }
+                        ]
+                    },
+                    ...chartOptsK8S
+                })
+            },
+
+            updateChart (chartName, x, y, borderColor, backgroundColor, tipsLabel) {
+                this[chartName].data.labels = x
+                const datasets = this[chartName].data.datasets[0]
+                datasets.borderColor = borderColor
+                datasets.backgroundColor = backgroundColor
+                datasets.tipsLabel = tipsLabel
+                datasets.data = y
+                this[chartName].update()
+            },
+
             /**
              * 渲染 cpu 图表
              *
              * @param {Array} list 图表数据
              */
             renderCpuChart (list) {
-                const chartNode = this.$refs.cpuLine1
-                if (!chartNode) {
-                    return
-                }
-
-                const cpuChartOptsK8S = Object.assign({}, this.cpuChartOptsK8S)
-                cpuChartOptsK8S.series.splice(0, cpuChartOptsK8S.series.length, ...[])
-
+                let x = []
+                const y = []
+                const tipsLabel = this.$t('CPU使用率')
+                const borderColor = 'rgb(48, 216, 120)'
+                const backgroundColor = 'rgba(48, 216, 120, 0.1)'
                 const data = list.length ? list : [{ values: [[parseInt(String(+new Date()).slice(0, 10), 10), '0']] }]
-
                 data.forEach(item => {
-                    item.values.forEach(d => {
-                        d[0] = parseInt(d[0] + '000', 10)
+                    item.values.forEach(value => {
+                        x.push(value[0])
+                        y.push(value[1])
                     })
-                    cpuChartOptsK8S.series.push(
-                        {
-                            type: 'line',
-                            showSymbol: false,
-                            smooth: true,
-                            hoverAnimation: false,
-                            areaStyle: {
-                                normal: {
-                                    opacity: 0.2
-                                }
-                            },
-                            itemStyle: {
-                                normal: {
-                                    color: '#30d878'
-                                }
-                            },
-                            data: item.values
-                        }
-                    )
+                })
+                x = x.map(i => {
+                    if (String(parseInt(i, 10)).length === 10) {
+                        i = parseInt(i, 10) + '000'
+                    }
+                    return moment(parseInt(i, 10)).format('HH:mm')
                 })
 
-                const label = this.$t('CPU使用率')
-                chartNode.mergeOptions({
-                    tooltip: {
-                        formatter (params, ticket, callback) {
-                            let ret = ''
-
-                            if (params[0].value[1] === '-') {
-                                ret = '<div>No Data</div>'
-                            } else {
-                                ret = `
-                                    <div>${moment(parseInt(params[0].value[0], 10)).format('YYYY-MM-DD HH:mm:ss')}</div>
-                                    <div>${label}：${parseFloat(params[0].value[1]).toFixed(2)}%</div>
-                                `
-                            }
-
-                            return ret
+                const ymd = moment().format('YYYY-MM-DD')
+                const s = moment().format('ss')
+                const tooltipsOps = {
+                    displayColors: false,
+                    callbacks: {
+                        title (data) {
+                            const label = data[0].dataset.tipsLabel
+                            const hm = data[0].label
+                            return `${ymd} ${hm}:${s}\n${label}：${parseFloat(data[0].raw).toFixed(2)}%`
+                        },
+                        label (item) {
+                            return item.dataset.label
                         }
                     }
+                }
+                const datasets = []
+                datasets.push({
+                    label: false,
+                    fill: true,
+                    borderColor,
+                    backgroundColor,
+                    lineTension: 0.3,
+                    borderWidth: 2,
+                    pointRadius: 0,
+                    data: y,
+                    tipsLabel
                 })
-
-                chartNode.hideLoading()
+                this.$nextTick(() => {
+                    if (this.cpuChart) {
+                        this.updateChart('cpuChart', x, datasets, tooltipsOps, this.cpuChartOptsK8S)
+                    } else {
+                        this.initChart('cpuChart', x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, this.cpuChartOptsK8S)
+                    }
+                })
+                this.cpuShowLoading = false
             },
 
             /**
@@ -668,62 +720,48 @@
              * @param {Array} list 图表数据
              */
             renderMemChart (list) {
-                const chartNode = this.$refs.memoryLine1
-                if (!chartNode) {
-                    return
-                }
-
-                const memChartOptsK8S = Object.assign({}, this.memChartOptsK8S)
-                memChartOptsK8S.series.splice(0, memChartOptsK8S.series.length, ...[])
-
+                let x = []
+                const y = []
+                const tipsLabel = this.$t('内存使用率')
+                const borderColor = 'rgb(58, 132, 255)'
+                const backgroundColor = 'rgba(58, 132, 255, 0.1)'
                 const data = list.length ? list : [{ values: [[parseInt(String(+new Date()).slice(0, 10), 10), '0']] }]
-
                 data.forEach(item => {
-                    item.values.forEach(d => {
-                        d[0] = parseInt(d[0] + '000', 10)
+                    item.values.forEach(value => {
+                        x.push(value[0])
+                        y.push(value[1])
                     })
-                    memChartOptsK8S.series.push(
-                        {
-                            type: 'line',
-                            showSymbol: false,
-                            smooth: true,
-                            hoverAnimation: false,
-                            areaStyle: {
-                                normal: {
-                                    opacity: 0.2
-                                }
-                            },
-                            itemStyle: {
-                                normal: {
-                                    color: '#3a84ff'
-                                }
-                            },
-                            data: item.values
-                        }
-                    )
+                })
+                x = x.map(i => {
+                    if (String(parseInt(i, 10)).length === 10) {
+                        i = parseInt(i, 10) + '000'
+                    }
+                    return moment(parseInt(i, 10)).format('HH:mm')
                 })
 
-                const label = this.$t('内存使用率')
-                chartNode.mergeOptions({
-                    tooltip: {
-                        formatter (params, ticket, callback) {
-                            let ret = ''
-
-                            if (params[0].value[1] === '-') {
-                                ret = '<div>No Data</div>'
-                            } else {
-                                ret = `
-                                    <div>${moment(parseInt(params[0].value[0], 10)).format('YYYY-MM-DD HH:mm:ss')}</div>
-                                    <div>${label}：${parseFloat(params[0].value[1]).toFixed(2)}%</div>
-                                `
-                            }
-
-                            return ret
+                const ymd = moment().format('YYYY-MM-DD')
+                const s = moment().format('ss')
+                const tooltipsOps = {
+                    displayColors: false,
+                    callbacks: {
+                        title (data) {
+                            const label = data[0].dataset.tipsLabel
+                            const hm = data[0].label
+                            return `${ymd} ${hm}:${s}\n${label}：${parseFloat(data[0].raw).toFixed(2)}%`
+                        },
+                        label (item) {
+                            return item.dataset.label
                         }
                     }
+                }
+                this.$nextTick(() => {
+                    if (this.memChart) {
+                        this.updateChart('memChart', x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, this.memChartOptsK8S)
+                    } else {
+                        this.initChart('memChart', x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, this.memChartOptsK8S)
+                    }
                 })
-
-                chartNode.hideLoading()
+                this.memShowLoading = false
             },
 
             /**
@@ -732,62 +770,48 @@
              * @param {Array} list 图表数据
              */
             renderDiskioChart (list) {
-                const chartNode = this.$refs.storageLine1
-                if (!chartNode) {
-                    return
-                }
-
-                const diskioChartOptsK8S = Object.assign({}, this.diskioChartOptsK8S)
-                diskioChartOptsK8S.series.splice(0, diskioChartOptsK8S.series.length, ...[])
-
+                let x = []
+                const y = []
+                const tipsLabel = this.$t('IO使用率')
+                const borderColor = 'rgb(250, 203, 88)'
+                const backgroundColor = 'rgba(250, 203, 88, 0.1)'
                 const data = list.length ? list : [{ values: [[parseInt(String(+new Date()).slice(0, 10), 10), '0']] }]
-
                 data.forEach(item => {
-                    item.values.forEach(d => {
-                        d[0] = parseInt(d[0] + '000', 10)
+                    item.values.forEach(value => {
+                        x.push(value[0])
+                        y.push(value[1])
                     })
-                    diskioChartOptsK8S.series.push(
-                        {
-                            type: 'line',
-                            showSymbol: false,
-                            smooth: true,
-                            hoverAnimation: false,
-                            areaStyle: {
-                                normal: {
-                                    opacity: 0.2
-                                }
-                            },
-                            itemStyle: {
-                                normal: {
-                                    color: '#ffbe21'
-                                }
-                            },
-                            data: item.values
-                        }
-                    )
+                })
+                x = x.map(i => {
+                    if (String(parseInt(i, 10)).length === 10) {
+                        i = parseInt(i, 10) + '000'
+                    }
+                    return moment(parseInt(i, 10)).format('HH:mm')
                 })
 
-                const label = this.$t('磁盘IO')
-                chartNode.mergeOptions({
-                    tooltip: {
-                        formatter (params, ticket, callback) {
-                            let ret = ''
-
-                            if (params[0].value[1] === '-') {
-                                ret = '<div>No Data</div>'
-                            } else {
-                                ret = `
-                                    <div>${moment(parseInt(params[0].value[0], 10)).format('YYYY-MM-DD HH:mm:ss')}</div>
-                                    <div>${label}：${parseFloat(params[0].value[1]).toFixed(2)}%</div>
-                                `
-                            }
-
-                            return ret
+                const ymd = moment().format('YYYY-MM-DD')
+                const s = moment().format('ss')
+                const tooltipsOps = {
+                    displayColors: false,
+                    callbacks: {
+                        title (data) {
+                            const label = data[0].dataset.tipsLabel
+                            const hm = data[0].label
+                            return `${ymd} ${hm}:${s}\n${label}：${parseFloat(data[0].raw).toFixed(2)}%`
+                        },
+                        label (item) {
+                            return item.dataset.label
                         }
                     }
+                }
+                this.$nextTick(() => {
+                    if (this.diskioChart) {
+                        this.updateChart('diskioChart', x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, this.diskioChartOptsK8S)
+                    } else {
+                        this.initChart('diskioChart', x, y, borderColor, backgroundColor, tipsLabel, tooltipsOps, this.diskioChartOptsK8S)
+                    }
                 })
-
-                chartNode.hideLoading()
+                this.diskioShowLoading = false
             },
 
             /**
@@ -916,26 +940,26 @@
                     this[toggleRangeStr] = this.$t('近7天')
                 }
 
-                this.$refs[dropdownRef].hide()
+                // this.$refs[dropdownRef].hide()
 
-                let ref = null
-                if (idx === 'cpu_summary') {
-                    ref = this.$refs.cpuLine1
-                }
-                if (idx === 'mem') {
-                    ref = this.$refs.memoryLine1
-                }
-                if (idx === 'io') {
-                    ref = this.$refs.storageLine1
-                }
-                if (idx === 'net') {
-                    ref = this.$refs.networkLine1
-                }
-                ref && ref.showLoading({
-                    text: this.$t('正在加载中...'),
-                    color: '#30d878',
-                    maskColor: 'rgba(255, 255, 255, 0.8)'
-                })
+                // let ref = null
+                // if (idx === 'cpu_summary') {
+                //     ref = this.$refs.cpuLine1
+                // }
+                // if (idx === 'mem') {
+                //     ref = this.$refs.memoryLine1
+                // }
+                // if (idx === 'io') {
+                //     ref = this.$refs.storageLine1
+                // }
+                // if (idx === 'net') {
+                //     ref = this.$refs.networkLine1
+                // }
+                // ref && ref.showLoading({
+                //     text: this.$t('正在加载中...'),
+                //     color: '#30d878',
+                //     maskColor: 'rgba(255, 255, 255, 0.8)'
+                // })
 
                 this.fetchDataK8S(idx, range)
             },

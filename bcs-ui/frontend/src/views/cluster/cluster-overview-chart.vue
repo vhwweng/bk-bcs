@@ -1,18 +1,14 @@
 <template>
-    <chart :options="renderChartOpts" ref="chartNode" auto-resize></chart>
+    <div v-bkloading="{ isLoading: showLoading }">
+        <canvas :id="`${chartType}Chart`"></canvas>
+    </div>
 </template>
 
 <script>
     import moment from 'moment'
-
-    import ECharts from 'vue-echarts/components/ECharts.vue'
-    import 'echarts/lib/chart/line'
-    import 'echarts/lib/component/tooltip'
+    import BKChart from '@tencent/bkchart.js'
 
     export default {
-        components: {
-            chart: ECharts
-        },
         props: {
             chartType: {
                 type: String
@@ -34,275 +30,7 @@
         },
         data () {
             return {
-                cpuChartOpts: {
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                            type: 'line',
-                            animation: false,
-                            label: {
-                                backgroundColor: '#6a7985'
-                            }
-                        }
-                    },
-                    grid: {
-                        show: false,
-                        top: '4%',
-                        left: '4%',
-                        right: '5%',
-                        bottom: '3%',
-                        containLabel: true
-                    },
-                    xAxis: [
-                        {
-                            type: 'time',
-                            boundaryGap: false,
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 5,
-                                lineStyle: {
-                                    color: '#ebf0f5'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    if (String(parseInt(value, 10)).length === 10) {
-                                        value = parseInt(value, 10) + '000'
-                                    }
-                                    return moment(parseInt(value, 10)).format('HH:mm')
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            boundaryGap: [0, '2%'],
-                            type: 'value',
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 0,
-                                lineStyle: {
-                                    color: 'red'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    return `${value.toFixed(1)}%`
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    series: []
-                },
-                memChartOpts: {
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                            type: 'line',
-                            animation: false,
-                            label: {
-                                backgroundColor: '#6a7985'
-                            }
-                        }
-                    },
-                    grid: {
-                        show: false,
-                        top: '4%',
-                        left: '4%',
-                        right: '5%',
-                        bottom: '3%',
-                        containLabel: true
-                    },
-                    xAxis: [
-                        {
-                            type: 'time',
-                            boundaryGap: false,
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 5,
-                                lineStyle: {
-                                    color: '#ebf0f5'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    if (String(parseInt(value, 10)).length === 10) {
-                                        value = parseInt(value, 10) + '000'
-                                    }
-                                    return moment(parseInt(value, 10)).format('HH:mm')
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            boundaryGap: [0, '2%'],
-                            type: 'value',
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 0,
-                                lineStyle: {
-                                    color: 'red'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    return `${(value).toFixed(1)}%`
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    series: [
-                    ]
-                },
-                diskChartOpts: {
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                            type: 'line',
-                            animation: false,
-                            label: {
-                                backgroundColor: '#6a7985'
-                            }
-                        }
-                    },
-                    grid: {
-                        show: false,
-                        top: '4%',
-                        left: '4%',
-                        right: '5%',
-                        bottom: '3%',
-                        containLabel: true
-                    },
-                    xAxis: [
-                        {
-                            type: 'time',
-                            boundaryGap: false,
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 5,
-                                lineStyle: {
-                                    color: '#ebf0f5'
-                                    // color: '#868b97'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    if (String(parseInt(value, 10)).length === 10) {
-                                        value = parseInt(value, 10) + '000'
-                                    }
-                                    return moment(parseInt(value, 10)).format('HH:mm')
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            boundaryGap: [0, '2%'],
-                            type: 'value',
-                            axisLine: {
-                                show: true,
-                                lineStyle: {
-                                    color: '#dde4eb'
-                                }
-                            },
-                            axisTick: {
-                                alignWithLabel: true,
-                                length: 0,
-                                lineStyle: {
-                                    color: 'red'
-                                }
-                            },
-                            axisLabel: {
-                                color: '#868b97',
-                                formatter (value, index) {
-                                    return `${(value).toFixed(1)}%`
-                                }
-                            },
-                            splitLine: {
-                                show: true,
-                                // show: false,
-                                lineStyle: {
-                                    color: ['#ebf0f5'],
-                                    type: 'dashed'
-                                }
-                            }
-                        }
-                    ],
-                    series: [
-                    ]
-                },
-                renderChartOpts: null
+                chart: null
             }
         },
         computed: {
@@ -314,46 +42,15 @@
             }
         },
         watch: {
-            // showLoading: {
-            //     handler (newVal, oldVal) {
-            //         if (newVal === true) {
-            //             const chartNode = this.$refs.chartNode
-            //             chartNode && chartNode.showLoading({
-            //                 text: this.$t('正在加载中...'),
-            //                 color: '#30d878',
-            //                 maskColor: 'rgba(255, 255, 255, 0.8)'
-            //             })
-            //         }
-            //     },
-            //     immediate: true
-            // }
             data (v) {
                 setTimeout(() => {
-                    this.renderMatrixChart(this.data)
+                    this.initData()
                 }, 0)
             }
         },
-        created () {
-            if (this.chartType === 'cpu') {
-                this.renderChartOpts = Object.assign({}, this.cpuChartOpts)
-            }
-            if (this.chartType === 'mem') {
-                this.renderChartOpts = Object.assign({}, this.memChartOpts)
-            }
-            if (this.chartType === 'disk') {
-                this.renderChartOpts = Object.assign({}, this.diskChartOpts)
-            }
-        },
         mounted () {
-            if (this.showLoading) {
-                const chartNode = this.$refs.chartNode
-                chartNode && chartNode.showLoading({
-                    text: this.$t('正在加载中...'),
-                    color: '#30d878',
-                    maskColor: 'rgba(255, 255, 255, 0.8)'
-                })
-            } else {
-                this.renderMatrixChart(this.data)
+            if (!this.showLoading) {
+                this.initData()
             }
             window.addEventListener('resize', this.resizeHandler)
         },
@@ -361,110 +58,136 @@
             window.removeEventListener('resize', this.resizeHandler)
         },
         methods: {
-            resizeHandler () {
-                this.$refs.chartNode && this.$refs.chartNode.resize()
-            },
-
-            /**
-             * 转换百分比
-             *
-             * @param {number} remain 剩下的数量
-             * @param {number} total 总量
-             *
-             * @return {number} 百分比数字
-             */
-            conversionPercent (remain, total) {
-                if (!remain || !total) {
-                    return 0
-                }
-                return total === 0 ? 0 : ((total - remain) / total * 100).toFixed(2)
-            },
-
-            /**
-             * 渲染 matrix 图表，数据为二维数组
-             *
-             * @param {Array} list 数据
-             */
-            renderMatrixChart (list) {
-                const chartNode = this.$refs.chartNode
-                if (!chartNode) {
-                    return
-                }
-
-                const renderChartOpts = Object.assign({}, this.renderChartOpts)
-
-                // const data = list.length ? list : [{ time: +new Date(), used: 0, total: 0 }]
-                const data = list.length ? list : [{ values: [[parseInt(String(+new Date()).slice(0, 10), 10), '0']] }]
-
+            initData () {
+                let x = []
+                const y = []
+                const data = this.data.length ? this.data : [{ values: [[parseInt(String(+new Date()).slice(0, 10), 10), '0']] }]
                 data.forEach(item => {
-                    // [
-                    //     {
-                    //         value: [item.time, this.conversionPercent(item.remain_cpu, item.total_cpu)]
-                    //     }
-                    // ]
-                    let color = ''
-                    if (this.chartType === 'cpu') {
-                        color = '#30d878'
-                    }
-
-                    if (this.chartType === 'mem') {
-                        color = '#3a84ff'
-                    }
-
-                    if (this.chartType === 'disk') {
-                        color = '#853cff'
-                    }
-
-                    renderChartOpts.series.push(
-                        {
-                            type: 'line',
-                            smooth: true,
-                            showSymbol: false,
-                            hoverAnimation: false,
-                            areaStyle: {
-                                normal: {
-                                    opacity: 0.2
-                                }
-                            },
-                            itemStyle: {
-                                normal: {
-                                    color: color
-                                }
-                            },
-                            data: item.values
-                        }
-                    )
+                    item.values.forEach(value => {
+                        x.push(value[0])
+                        y.push(value[1])
+                    })
                 })
+                x = x.map(i => {
+                    if (String(parseInt(i, 10)).length === 10) {
+                        i = parseInt(i, 10) + '000'
+                    }
+                    return moment(parseInt(i, 10)).format('HH:mm')
+                })
+                this.initChart(x, y)
+            },
 
-                let label = ''
+            initChart (x, y) {
+                let borderColor = 'rgb(48, 216, 120)'
+                let backgroundColor = 'rgba(48, 216, 120, 0.2)'
+                if (this.chartType === 'mem') {
+                    borderColor = 'rgb(58, 132, 255)'
+                    backgroundColor = 'rgba(58, 132, 255, 0.2)'
+                }
+                if (this.chartType === 'disk') {
+                    borderColor = 'rgb(133, 60, 255)'
+                    backgroundColor = 'rgba(133, 60, 255, 0.2)'
+                }
+                let tipsLabel = ''
                 if (this.chartType === 'cpu') {
-                    label = this.$t('CPU使用率')
+                    tipsLabel = this.$t('CPU使用率')
                 }
 
                 if (this.chartType === 'mem') {
-                    label = this.$t('内存使用率')
+                    tipsLabel = this.$t('内存使用率')
                 }
 
                 if (this.chartType === 'disk') {
-                    label = this.$t('磁盘使用率')
+                    tipsLabel = this.$t('磁盘使用率')
                 }
-
-                chartNode.mergeOptions({
-                    tooltip: {
-                        formatter (params, ticket, callback) {
-                            let date = params[0].value[0]
-                            if (String(parseInt(date, 10)).length === 10) {
-                                date = parseInt(date, 10) + '000'
+                const ymd = moment().format('YYYY-MM-DD')
+                const s = moment().format('ss')
+                const chartId = `${this.chartType}Chart`
+                const context = document.getElementById(chartId)
+                this.chart = new BKChart(context, {
+                    type: 'line',
+                    data: {
+                        labels: x,
+                        datasets: [
+                            {
+                                label: false,
+                                fill: true,
+                                borderColor,
+                                backgroundColor,
+                                lineTension: 0.3,
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                data: y,
+                                tipsLabel
                             }
-                            return `
-                                <div>${moment(parseInt(date, 10)).format('YYYY-MM-DD HH:mm:ss')}</div>
-                                <div>${label}：${parseFloat(params[0].value[1]).toFixed(2)}%</div>
-                            `
+                        ]
+                    },
+                    options: {
+                        tickWidth: 20,
+                        layout: {
+                            padding: {
+                                left: 20,
+                                right: 20
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            crosshair: {
+                                enabled: true,
+                                style: {
+                                    x: {
+                                        enabled: true,
+                                        borderStyle: 'solid',
+                                        weight: 1
+                                    },
+                                    y: {
+                                        enabled: false
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                displayColors: false,
+                                callbacks: {
+                                    title (data) {
+                                        const label = data[0].dataset.tipsLabel
+                                        const hm = data[0].label
+                                        return `${ymd} ${hm}:${s}\n${label}：${parseFloat(data[0].raw).toFixed(2)}%`
+                                    },
+                                    label (item) {
+                                        return item.dataset.label
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                min: 0,
+                                ticks: {
+                                    maxTicksLimit: 6,
+                                    maxRotation: 0
+                                }
+                            },
+                            y: {
+                                min: 0,
+                                ticks: {
+                                    callback: function (value) {
+                                        if (value >= 0) return value + '.0%'
+                                        return value + '%'
+                                    }
+                                }
+                            }
                         }
                     }
                 })
-
-                chartNode.hideLoading()
+            },
+            resizeHandler () {
+                this.chart && this.chart.resize()
             }
         }
     }
