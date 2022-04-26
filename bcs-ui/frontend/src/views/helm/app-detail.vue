@@ -462,12 +462,12 @@
                 </div>
                 <div style="max-height: 500px; overflow: auto; position: relative; border: 1px solid #ddd; border-radius: 2px;">
                     <div :class="['diff-editor-box', { 'editor-fullscreen': yamlDiffEditorOptions.fullScreen }]" style="position: relative;">
-                        <div :title="$t('关闭全屏')" class="fullscreen-close" v-if="yamlDiffEditorOptions.fullScreen" @click="cancelFullScreen">
+                        <!-- <div :title="$t('关闭全屏')" class="fullscreen-close" v-if="yamlDiffEditorOptions.fullScreen" @click="cancelFullScreen">
                             <i class="bcs-icon bcs-icon-close"></i>
                         </div>
                         <div :title="$t('全屏')" class="fullscreen-use" v-else @click="setFullScreen">
                             <i class="bcs-icon bcs-icon-full-screen"></i>
-                        </div>
+                        </div> -->
                         <monaco-editor
                             ref="yamlEditor"
                             class="editor"

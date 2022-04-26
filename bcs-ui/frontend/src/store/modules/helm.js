@@ -537,6 +537,5 @@ export default {
         getNotes (context, { clusterId, projectId, namespaceName, releaseName }, config = {}) {
             return http.get(`${DEVOPS_BCS_API_URL}/api/helm/projects/${projectId}/clusters/${clusterId}/namespaces/${namespaceName}/releases/${releaseName}/notes/`, {}, config)
         }
-
     }
 }

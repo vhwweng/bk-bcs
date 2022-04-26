@@ -47,11 +47,11 @@
         <div class="biz-content-wrapper biz-tpl-wrapper" style="padding: 0; margin: 0;" v-bkloading="{ isLoading: showLoading, opacity: 0.1 }">
             <template v-if="!showLoading">
                 <div class="biz-panel-header" style="padding: 20px;">
-                    <div class="left">
+                    <!-- <div class="left">
                         <bk-button type="primary" @click="syncHelmTpl" :loading="isTplSynLoading">{{$t('同步仓库')}}</bk-button>
                         <span class="biz-tip ml5">{{$t('同步仓库中的Helm Chart')}}</span>
                         <a class="bk-text-button f12 ml10" href="javascript:void(0);" @click="getHelmDeops">{{$t('查看项目Chart仓库配置信息')}}</a>
-                    </div>
+                    </div> -->
                     <div class="right">
                         <div class="biz-search-input" style="width: 300px;">
                             <bk-input right-icon="bk-icon icon-search"
@@ -631,13 +631,7 @@
             search () {
                 const keyword = this.searchKeyword
                 if (keyword) {
-                    const results = this.tplListCache.filter(item => {
-                        if (item.name.indexOf(keyword) > -1) {
-                            return true
-                        } else {
-                            return false
-                        }
-                    })
+                    const results = this.tplListCache.filter(item => item.name.indexOf(keyword) > -1)
                     this.tplList.splice(0, this.tplList.length, ...results)
                     this.isSearchMode = true
                 } else {
